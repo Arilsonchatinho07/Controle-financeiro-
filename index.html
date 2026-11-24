@@ -47,7 +47,7 @@ svg{width:100%;height:auto;display:block}
 <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/htm@3.1.1/dist/htm.umd.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.58.0/dist/umd/supabase.js"></script>
 <script src="config.js"></script>
 <script>
 const {useState,useEffect,useRef,useMemo,useCallback}=React;
@@ -120,7 +120,7 @@ function App(){
   const [op,setOp]=useState(()=>ld('acm_op',''));
   const [code,setCode]=useState(()=>ld('acm_code','AC-MIDIAPRO-2026'));
   const [net,setNet]=useState(navigator.onLine);
-  const dbOk=!!sb;const [busy,setBusy]=useState(false);
+  const dbOk=!!sb;const [user,setUser]=useState(null),[authReady,setAuthReady]=useState(!sb),[syncErr,setSyncErr]=useState(''),[email,setEmail]=useState(''),[pw,setPw]=useState(''),[aErr,setAErr]=useState(''),[aBusy,setABusy]=useState(false);const [busy,setBusy]=useState(false);
   const [edit,setEdit]=useState(null);const [per,setPer]=useState('hoje');
   const [flt,setFlt]=useState('all');const [q,setQ]=useState('');const [msg,setMsg]=useState('');
   const itR=useRef(raw);
@@ -128,28 +128,37 @@ function App(){
   useEffect(()=>sv('acm_items',raw),[raw]);
   useEffect(()=>sv('acm_op',op),[op]);useEffect(()=>sv('acm_code',code),[code]);
   useEffect(()=>{const a=()=>setNet(true),b=()=>setNet(false);addEventListener('online',a);addEventListener('offline',b);return()=>{removeEventListener('online',a);removeEventListener('offline',b)}},[]);
+  useEffect(()=>{if(!sb)return;sb.auth.getSession().then(({data})=>{setUser(data.session?data.session.user:null);setAuthReady(true)}).catch(()=>setAuthReady(true));
+    const {data:l}=sb.auth.onAuthStateChange((_e,sess)=>setUser(sess?sess.user:null));return()=>l.subscription.unsubscribe()},[]);
   const merge=useCallback(rows=>setItems(p=>{const m=new Map(p.map(x=>[x.id,x]));rows.forEach(r=>{const l=m.get(r.id);if(!l||l.synced||r.updated>=l.updated)m.set(r.id,r)});return[...m.values()]}),[]);
+  const pull=useCallback(async()=>{if(!sb||!user||!navigator.onLine)return;
+    try{const {data,error}=await sb.from('transacoes').select('*').eq('house',code);if(error)setSyncErr(error.message);else{setSyncErr('');merge(data.map(fromRow))}}catch(e){setSyncErr('Falha de rede')}},[code,user]);
   const flush=useCallback(async()=>{
-    if(!sb||!navigator.onLine)return;
+    if(!sb||!user||!navigator.onLine)return;
     const pend=itR.current.filter(x=>!x.synced);if(!pend.length)return;
     setBusy(true);
     try{const {error}=await sb.from('transacoes').upsert(pend.map(x=>toRow(x,code)));
-      if(!error)setItems(p=>p.map(y=>{const o=pend.find(x=>x.id===y.id&&x.updated===y.updated);return o?{...y,synced:true}:y}))}catch(e){}
+      if(error)setSyncErr(error.message);else{setSyncErr('');setItems(p=>p.map(y=>{const o=pend.find(x=>x.id===y.id&&x.updated===y.updated);return o?{...y,synced:true}:y}))}}catch(e){setSyncErr('Falha de rede')}
     setBusy(false);
-  },[code]);
+  },[code,user]);
   useEffect(()=>{
-    if(!sb||!net)return;let ch,dead=false;
-    (async()=>{try{await flush();
-      const {data}=await sb.from('transacoes').select('*').eq('house',code);if(data&&!dead)merge(data.map(fromRow));
-      ch=sb.channel('h-'+code).on('postgres_changes',{event:'*',schema:'public',table:'transacoes',filter:'house=eq.'+code},pl=>{if(pl.new&&pl.new.id)merge([fromRow(pl.new)])}).subscribe()}catch(e){}})();
-    return()=>{dead=true;if(ch)sb.removeChannel(ch)};
-  },[net,code]);
+    if(!sb||!net||!user)return;let ch;
+    (async()=>{try{await flush();await pull();
+      ch=sb.channel('h-'+code+'-'+user.id).on('postgres_changes',{event:'*',schema:'public',table:'transacoes',filter:'house=eq.'+code},pl=>{if(pl.new&&pl.new.id)merge([fromRow(pl.new)])}).subscribe()}catch(e){}})();
+    const t=setInterval(pull,10000);
+    return()=>{clearInterval(t);if(ch)sb.removeChannel(ch)};
+  },[net,code,user]);
+  const doAuth=async mode=>{setAErr('');setABusy(true);
+    try{const {data,error}=await(mode==='up'?sb.auth.signUp({email:email.trim(),password:pw}):sb.auth.signInWithPassword({email:email.trim(),password:pw}));
+      if(error)setAErr(error.message);else if(mode==='up'&&!data.session)setAErr('Conta criada. Confirme o email (ou desative "Confirm email" no Supabase) e depois clique em Entrar.')}catch(e){setAErr('Sem ligação à internet.')}
+    setABusy(false)};
+  const logout=async()=>{if(!confirm('Terminar sessão? Os dados deste aparelho serão apagados (os já sincronizados continuam na conta).'))return;try{await sb.auth.signOut()}catch(e){}setItems([]);setUser(null)};
   useEffect(()=>{flush();const t=setInterval(flush,8000);return()=>clearInterval(t)},[flush,net,items.length]);
 
   const save=x=>{setItems(p=>[{...x,synced:false,deleted:false,updated:Date.now()},...p.filter(y=>y.id!==x.id)]);if(x.by)setOp(x.by);setEdit(null);setMsg(x.type==='in'?'Entrada registada ✔':'Retirada registada ✔');setTimeout(()=>setMsg(''),2200);setTimeout(flush,50)};
   const del=x=>{if(!confirm('Excluir este lançamento?'))return;setItems(p=>p.map(y=>y.id===x.id?{...y,deleted:true,updated:Date.now(),synced:false}:y));setTimeout(flush,50)};
   const pending=raw.filter(x=>!x.synced).length;
-  const status=!net||!dbOk?{c:'b-off',t:`Modo Offline (${pending} pendentes)`}:busy||pending?{c:'b-sy',t:'A sincronizar...'}:{c:'b-on',t:'Online / Sincronizado'};
+  const status=!sb||!user||!net||syncErr?{c:'b-off',t:syncErr&&net?`Erro de sincronização (${pending} pendentes)`:`Modo Offline (${pending} pendentes)`}:busy||pending?{c:'b-sy',t:'A sincronizar...'}:{c:'b-on',t:'Online / Sincronizado'};
 
   const range=useMemo(()=>{const t=sod(Date.now());if(per==='hoje')return[t,1e15];if(per==='semana'){const d=new Date(t);return[t-((d.getDay()+6)%7)*864e5,1e15]}if(per==='mes'){const d=new Date(t);d.setDate(1);return[d.getTime(),1e15]}return[0,1e15]},[per,items.length]);
   const pi=items.filter(x=>x.at>=range[0]);
@@ -169,6 +178,13 @@ function App(){
     <div class="grid"><div class="stat"><span>Entradas</span><b class="pos">${kz(tin)}</b></div><div class="stat"><span>Retiradas</span><b class="neg">${kz(tout)}</b></div><div class="stat"><span>Saldo líquido em caixa</span><b class=${bal>=0?'pos':'neg'}>${kz(bal)}</b></div>
     <div class="stat"><span>💵 Saldo Cash</span><b class=${bc>=0?'pos':'neg'}>${kz(bc)}</b></div><div class="stat"><span>📲 Saldo MCX Express</span><b class=${bm>=0?'pos':'neg'}>${kz(bm)}</b></div></div></div>`;
 
+  if(sb&&!user)return html`<div id="app"><header><h1>🎮 AC Midia Pro<small>Controle Diário</small></h1></header>
+    <div class="card"><h3>${authReady?'Entrar na conta':'A carregar...'}</h3>${authReady&&html`<div>
+      <label>Email</label><input type="email" autocomplete="email" value=${email} onChange=${e=>setEmail(e.target.value)}/>
+      <label>Palavra-passe (mín. 6)</label><input type="password" autocomplete="current-password" value=${pw} onChange=${e=>setPw(e.target.value)}/>
+      ${aErr&&html`<div class="err">${aErr}</div>`}
+      <div class="row" style=${{marginTop:12}}><button class="p" disabled=${aBusy} onClick=${()=>doAuth('in')}>Entrar</button><button disabled=${aBusy} onClick=${()=>doAuth('up')}>Criar conta</button></div>
+      <small style=${{color:'var(--mu)',display:'block',marginTop:10}}>Use a mesma conta em todos os telemóveis para partilhar os dados em tempo real.</small></div>`}</div></div>`;
   return html`<div id="app">
     <header><h1>🎮 AC Midia Pro<small>Controle Diário · ${op?'Operador: '+op:'Sem operador'}</small></h1><span class=${'badge '+status.c}>${status.t}</span></header>
     ${msg&&html`<div class="card" style=${{padding:10,textAlign:'center'}}>${msg}</div>`}
@@ -181,7 +197,7 @@ function App(){
     ${tab==='cfg'&&html`<div class="card"><h3>Sala partilhada / Sócio</h3>
       <label>Nome do operador / sócio</label><input value=${op} onChange=${e=>setOp(e.target.value)} placeholder="Ex.: Glenio"/>
       <label>Código da casa</label><div class="row"><input value=${code} onChange=${e=>setCode(e.target.value.trim().toUpperCase())}/><button class="p sm" style=${{flex:'none'}} onClick=${copy}>Copiar código</button></div>
-      <small style=${{color:'var(--mu)',display:'block',marginTop:8}}>Quem abrir esta página com o mesmo código vê os mesmos lançamentos em tempo real. Sem internet, os registos ficam neste aparelho e são enviados automaticamente quando a ligação voltar.</small>
+      <small style=${{color:'var(--mu)',display:'block',marginTop:8}}>${sb?'Conta: '+(user?user.email:'sem sessão')+'. Entre com a mesma conta e o mesmo código nos outros telemóveis para ver os mesmos dados em tempo real.':'Supabase não configurado: edite o config.js. A app funciona só neste aparelho.'}</small>${syncErr&&html`<div class="err">Erro de sincronização: ${syncErr}</div>`}${sb&&html`<div class="row" style=${{marginTop:10}}><button class="p" onClick=${()=>{flush();pull()}}>🔄 Sincronizar agora</button><button onClick=${logout}>Terminar sessão</button></div>`}
       <div class="grid" style=${{marginTop:12}}><div class="stat"><span>Ligação</span><b>${net?'Online':'Offline'}</b></div><div class="stat"><span>Sincronização</span><b>${dbOk?'Disponível':'Só local'}</b></div><div class="stat"><span>Pendentes</span><b class=${pending?'pend':''}>${pending}</b></div></div></div>
       <div class="card"><h3>Exportação e backup</h3><div class="row"><button class="p" onClick=${csv}>📄 Exportar CSV (Excel)</button><button onClick=${bk}>💾 Backup JSON</button></div>
       <label>Restaurar backup JSON</label><input type="file" accept="application/json,.json" onChange=${rs}/></div>`}

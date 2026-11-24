@@ -1,4 +1,4 @@
--- Execute no SQL Editor do Supabase
+-- Execute no SQL Editor do Supabase (pode executar mais de uma vez)
 create table if not exists transacoes (
   id text primary key,
   house text not null,
@@ -12,8 +12,15 @@ create table if not exists transacoes (
   deleted boolean default false,
   updated_at bigint not null
 );
-create index if not exists transacoes_house_idx on transacoes(house);
+-- cada linha pertence à conta que a criou
+alter table transacoes add column if not exists user_id uuid default auth.uid();
+create index if not exists transacoes_user_house_idx on transacoes(user_id, house);
 alter table transacoes enable row level security;
--- Acesso simples por código da casa (o código funciona como "palavra-passe"). Use um código longo e difícil.
-create policy "acesso anon" on transacoes for all to anon using (true) with check (true);
-alter publication supabase_realtime add table transacoes;
+drop policy if exists "acesso anon" on transacoes;
+drop policy if exists "so a minha conta" on transacoes;
+create policy "so a minha conta" on transacoes for all to authenticated
+  using (user_id = auth.uid()) with check (user_id = auth.uid());
+-- tempo real
+do $$ begin
+  alter publication supabase_realtime add table transacoes;
+exception when duplicate_object then null; end $$;
