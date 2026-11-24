@@ -5,44 +5,64 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>AC Midia Pro — Controle Diário</title>
 <link rel="manifest" href="manifest.webmanifest">
-<meta name="theme-color" content="#0b0f1a">
+<meta name="theme-color" content="#070b12">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@500;600;700;800&display=swap">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <link rel="apple-touch-icon" href="icons/icon-192.png">
 <link rel="icon" href="icons/icon-192.png">
 <style>
-:root{color-scheme:dark;--bg:#0b0f1a;--card:#141b2d;--card2:#1b2440;--bd:#26304f;--tx:#e8ecf8;--mu:#8b96b8;--in:#22c55e;--out:#ef4444;--ac:#6366f1;--wa:#f59e0b;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
-*{box-sizing:border-box}html{scroll-padding-top:env(safe-area-inset-top,0px)}
-body{margin:0;background:radial-gradient(900px 500px at 80% -10%,#1d2760 0,transparent 60%),var(--bg);color:var(--tx);font:15px/1.4 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;min-height:100vh}
-#app{max-width:880px;margin:0 auto;padding:12px 14px 96px}
-header{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:12px}
-h1{font-size:18px;margin:0}h1 small{display:block;color:var(--mu);font-weight:500;font-size:12px}
-.badge{padding:5px 11px;border-radius:99px;font-size:12px;font-weight:600;border:1px solid}
-.b-on{color:var(--in);border-color:#166534;background:#052e16}.b-sy{color:var(--wa);border-color:#78350f;background:#2a1a05}.b-off{color:var(--out);border-color:#7f1d1d;background:#2a0b0b}
-.card{background:var(--card);border:1px solid var(--bd);border-radius:16px;padding:14px;margin-bottom:12px}
-.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px}
-.stat{background:var(--card2);border-radius:14px;padding:12px}.stat span{color:var(--mu);font-size:12px}.stat b{display:block;font-size:19px;margin-top:2px}
-.pos{color:var(--in)}.neg{color:var(--out)}
-label{display:block;color:var(--mu);font-size:12px;margin:10px 0 4px}
-input,select,textarea{width:100%;background:#0e1424;color:var(--tx);border:1px solid var(--bd);border-radius:12px;padding:12px;font:inherit}
-input:focus,select:focus,textarea:focus{outline:2px solid var(--ac)}
+:root{color-scheme:dark;--bg:#070b12;--tx:#eef2f7;--mu:#8793a6;--bd:rgba(255,255,255,.09);--gl:rgba(255,255,255,.055);--in:#34d399;--out:#fb7185;--ac:#f2b441;--r:18px;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--tx);font:15px/1.45 Manrope,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;min-height:100vh;font-variant-numeric:tabular-nums}
+.bg{position:fixed;inset:0;z-index:-1;overflow:hidden;background:var(--bg)}
+.bg i{position:absolute;width:90vmax;height:90vmax;border-radius:50%;will-change:transform}
+.bg i:nth-child(1){left:-35vmax;top:-40vmax;background:radial-gradient(closest-side,rgba(14,116,144,.5),transparent);animation:m1 22s ease-in-out infinite alternate}
+.bg i:nth-child(2){right:-45vmax;top:15vh;background:radial-gradient(closest-side,rgba(30,64,175,.45),transparent);animation:m2 28s ease-in-out infinite alternate}
+.bg i:nth-child(3){left:-20vmax;bottom:-50vmax;background:radial-gradient(closest-side,rgba(180,83,9,.28),transparent);animation:m3 32s ease-in-out infinite alternate}
+.bg:after{content:"";position:absolute;inset:0;background-image:linear-gradient(rgba(255,255,255,.035) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.035) 1px,transparent 1px);background-size:44px 44px;-webkit-mask-image:radial-gradient(ellipse at 50% 20%,#000,transparent 75%);mask-image:radial-gradient(ellipse at 50% 20%,#000,transparent 75%);animation:gr 18s linear infinite}
+@keyframes m1{to{transform:translate(35vmax,25vmax) scale(1.15)}}@keyframes m2{to{transform:translate(-40vmax,-20vmax) scale(.9)}}@keyframes m3{to{transform:translate(45vmax,-30vmax) scale(1.2)}}@keyframes gr{to{background-position:44px 44px}}
+@media(prefers-reduced-motion:reduce){.bg i,.bg:after{animation:none}}
+#app{max-width:720px;margin:0 auto;padding:16px 16px 118px}
+header{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:16px}
+.brand{display:flex;align-items:center;gap:12px}.logo{width:42px;height:42px;border-radius:13px;display:grid;place-items:center;font-weight:800;font-size:15px;letter-spacing:.5px;color:#1a1204;background:linear-gradient(145deg,#f7cf7a,#e39a1c);box-shadow:0 6px 20px rgba(242,180,65,.28)}
+h1{font-size:18px;margin:0;font-weight:800;letter-spacing:-.2px}h1 small{display:block;color:var(--mu);font-weight:500;font-size:12px;margin-top:1px}
+.badge{display:inline-flex;align-items:center;gap:7px;padding:6px 12px;border-radius:99px;font-size:12px;font-weight:700;background:var(--gl);border:1px solid var(--bd);backdrop-filter:blur(10px)}
+.dot{width:7px;height:7px;border-radius:50%;background:currentColor;animation:pl 1.8s infinite}@keyframes pl{50%{opacity:.35;transform:scale(.8)}}
+.b-on{color:var(--in)}.b-sy{color:var(--ac)}.b-off{color:var(--out)}
+.card{background:var(--gl);border:1px solid var(--bd);border-radius:var(--r);padding:18px;margin-bottom:14px;backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);box-shadow:0 10px 30px rgba(0,0,0,.25)}
+h3{margin:0 0 10px;font-size:13px;font-weight:700;color:var(--mu);text-transform:uppercase;letter-spacing:.9px}
+label,.lbl{display:block;color:var(--mu);font-size:11.5px;font-weight:700;text-transform:uppercase;letter-spacing:.7px;margin:14px 0 6px}
+input,select,textarea{width:100%;background:rgba(0,0,0,.28);color:var(--tx);border:1px solid var(--bd);border-radius:13px;padding:13px 14px;font:inherit;transition:border-color .2s,box-shadow .2s}
+input:focus,select:focus,textarea:focus{outline:0;border-color:var(--ac);box-shadow:0 0 0 3px rgba(242,180,65,.16)}
+input[inputmode=decimal]{font-size:26px;font-weight:800;padding:14px 16px}
 .row{display:flex;gap:8px;flex-wrap:wrap}.row>*{flex:1}
-button{font:inherit;cursor:pointer;border:1px solid var(--bd);background:var(--card2);color:var(--tx);border-radius:12px;padding:11px 14px;font-weight:600}
-button.p{background:var(--ac);border-color:var(--ac)}button.g{background:var(--in);border-color:var(--in);color:#04210f}button.r{background:var(--out);border-color:var(--out)}
+button{font:inherit;cursor:pointer;border:1px solid var(--bd);background:var(--gl);color:var(--tx);border-radius:13px;padding:12px 16px;font-weight:700;display:inline-flex;align-items:center;justify-content:center;gap:8px;transition:transform .12s,background .2s}
+button:active{transform:scale(.97)}
+button.p{background:linear-gradient(145deg,#f7cf7a,#e39a1c);border:0;color:#1a1204}button.g{background:linear-gradient(145deg,#4ade80,#10b981);border:0;color:#04201a}button.r{background:linear-gradient(145deg,#fb7185,#e11d48);border:0;color:#fff}
 button.sm{padding:6px 10px;font-size:12px;flex:none}
-.chips button{flex:none;padding:9px 13px}.chips .on{background:var(--ac);border-color:var(--ac)}
-.pay button{flex:1}.pay .on{background:#312e81;border-color:var(--ac)}
-.it{display:flex;gap:10px;justify-content:space-between;padding:12px 0;border-top:1px solid var(--bd)}
-.it:first-child{border-top:0}.it small{color:var(--mu);display:block}
-.tag{font-size:11px;padding:2px 8px;border-radius:99px;background:var(--card2);color:var(--mu);margin-right:4px}
-.pend{color:var(--wa)}
-nav{position:fixed;left:0;right:0;bottom:0;background:#0d1322ee;backdrop-filter:blur(10px);border-top:1px solid var(--bd);display:flex;justify-content:center;gap:4px;padding:8px 8px calc(8px + env(safe-area-inset-bottom,0px));z-index:5}
-nav button{flex:1;max-width:200px;background:transparent;border:0;color:var(--mu);font-size:12px;padding:8px 4px}nav button.on{color:#fff;background:var(--ac)}
-h3{margin:0 0 8px;font-size:15px}.err{color:var(--out);font-size:13px;margin-top:6px}
-svg{width:100%;height:auto;display:block}
+.chips button{flex:none;padding:9px 14px;border-radius:99px}.pay button.on{background:rgba(242,180,65,.14);border-color:var(--ac);color:var(--ac)}
+.seg{display:flex;gap:4px;padding:4px;background:rgba(0,0,0,.3);border-radius:14px;margin-bottom:14px}.seg button{flex:1;border:0;background:transparent;padding:9px 4px;font-size:12.5px;color:var(--mu);border-radius:10px;gap:5px}.seg button.on{background:rgba(255,255,255,.1);color:var(--tx)}
+.dt{margin-bottom:6px}.hero .lbl{margin-top:4px}.bal{font-size:36px;font-weight:800;letter-spacing:-1px;line-height:1.1;margin:2px 0 14px}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px}.mini{background:rgba(0,0,0,.25);border:1px solid var(--bd);border-radius:14px;padding:12px}.mini span{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--mu);font-weight:600}.mini b{display:block;margin-top:4px;font-size:16px;font-weight:800}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px}.stat{background:rgba(0,0,0,.25);border:1px solid var(--bd);border-radius:14px;padding:12px}.stat span{color:var(--mu);font-size:12px}.stat b{display:block;font-size:17px;margin-top:2px}
+.pos{color:var(--in)}.neg{color:var(--out)}.ic{flex:none;vertical-align:-3px}
+.it{display:flex;gap:12px;align-items:center;padding:13px 0;border-top:1px solid var(--bd)}.it:first-of-type{border-top:0}
+.ico{width:40px;height:40px;border-radius:12px;display:grid;place-items:center;flex:none;background:rgba(255,255,255,.06)}.ico.pos{background:rgba(52,211,153,.12)}.ico.neg{background:rgba(251,113,133,.12)}
+.mid{flex:1;min-width:0}.mid b{display:block;font-weight:700}.mid small{display:block;color:var(--mu);font-size:12px}.mid .nt{color:#b4bfd0;margin-top:2px}
+.rt{text-align:right}.rt>b{white-space:nowrap;font-weight:800}.act{display:flex;gap:6px;justify-content:flex-end;margin-top:6px}.ib{padding:6px;border-radius:9px;color:var(--mu)}
+.tag{font-size:12px;padding:5px 12px;border-radius:99px;background:rgba(242,180,65,.12);color:var(--ac);font-weight:700;border:1px solid rgba(242,180,65,.3)}
+.err{color:var(--out);font-size:13px;margin-top:8px}
+.toast{position:fixed;top:calc(12px + env(safe-area-inset-top,0px));left:50%;transform:translateX(-50%);z-index:20;background:#10b981;color:#04201a;padding:10px 18px;border-radius:99px;font-weight:800;box-shadow:0 10px 30px rgba(0,0,0,.4);animation:tin .25s}@keyframes tin{from{opacity:0;transform:translate(-50%,-10px)}}
+nav{position:fixed;left:12px;right:12px;bottom:calc(10px + env(safe-area-inset-bottom,0px));max-width:480px;margin:0 auto;display:flex;gap:2px;padding:6px;background:rgba(14,19,30,.78);border:1px solid var(--bd);border-radius:22px;backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);box-shadow:0 14px 40px rgba(0,0,0,.5);z-index:5}
+nav button{flex:1;flex-direction:column;gap:3px;background:transparent;border:0;color:var(--mu);font-size:11px;font-weight:700;padding:9px 2px;border-radius:16px}nav button.on{color:var(--ac);background:rgba(242,180,65,.12)}
+svg{max-width:100%}.card svg:not(.ic){width:100%;height:auto;display:block}
+::-webkit-calendar-picker-indicator{filter:invert(.8)}
 </style>
 </head>
 <body>
+<div class="bg"><i></i><i></i><i></i></div>
 <div id="root"></div>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
@@ -52,6 +72,8 @@ svg{width:100%;height:auto;display:block}
 <script>
 const {useState,useEffect,useRef,useMemo,useCallback}=React;
 const html=htm.bind(React.createElement);
+const P={in:'M12 5v14M5 12l7 7 7-7',out:'M12 19V5M5 12l7-7 7 7',chart:'M4 20V10M10 20V4M16 20v-7M22 20H2',user:'M16 8a4 4 0 11-8 0 4 4 0 018 0zM4 21a8 8 0 0116 0',edit:'M4 20h4L19 9l-4-4L4 16v4z',trash:'M4 7h16M9 7V4h6v3M6 7l1 13h10l1-13',sync:'M4 12a8 8 0 0113-6l3 3M20 4v5h-5M20 12a8 8 0 01-13 6l-3-3M4 20v-5h5',cash:'M3 7h18v10H3zM12 9.5a2.5 2.5 0 100 5 2.5 2.5 0 000-5z',phone:'M8 3h8a1 1 0 011 1v16a1 1 0 01-1 1H8a1 1 0 01-1-1V4a1 1 0 011-1zM11 18h2',cal:'M4 6h16v14H4zM4 10h16M8 3v4M16 3v4',dl:'M12 4v11M7 11l5 5 5-5M5 20h14'};
+const Ic=(n,z=20)=>html`<svg class="ic" width=${z} height=${z} viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d=${P[n]}/></svg>`;
 const CFG=window.ACM_CONFIG||{};
 const sb=(CFG.url&&CFG.key&&window.supabase)?window.supabase.createClient(CFG.url,CFG.key):null;
 const toRow=(x,h)=>({id:x.id,house:h,type:x.type,amount:x.amount,cat:x.cat,pay:x.pay,at:x.at,note:x.note||'',by_name:x.by||'',deleted:!!x.deleted,updated_at:x.updated});
@@ -87,9 +109,9 @@ function Form({type,op,onSave,edit,onCancel}){
     <label>${isIn?'Total vendido (Kz)':'Valor (Kz)'}</label>
     <input inputmode="decimal" placeholder="0" value=${amount} onChange=${e=>setA(e.target.value)}/>
     ${isIn&&html`<div class="row chips" style=${{marginTop:8}}>${[500,1000,2000,5000].map(n=>html`<button key=${n} onClick=${()=>setA(String((parseFloat(amount)||0)+n))}>+${new Intl.NumberFormat('pt-PT').format(n)}</button>`)}<button onClick=${()=>setA('')}>Limpar</button></div>`}
-    ${isIn?html`<div style=${{marginTop:12}}><span class="tag" style=${{fontSize:13,padding:'5px 12px'}}>🧾 ${edit?edit.cat:'Venda Diária'}</span></div>`:html`<label>Categoria da retirada</label><select value=${cat} onChange=${e=>setC(e.target.value)}>${cats.map(c=>html`<option key=${c}>${c}</option>`)}</select>`}
+    ${isIn?html`<div style=${{marginTop:12}}><span class="tag" style=${{fontSize:13,padding:'5px 12px'}}>${edit?edit.cat:'Venda Diária'}</span></div>`:html`<label>Categoria da retirada</label><select value=${cat} onChange=${e=>setC(e.target.value)}>${cats.map(c=>html`<option key=${c}>${c}</option>`)}</select>`}
     <label>${isIn?'Forma de pagamento':'Origem do valor'}</label>
-    <div class="row pay"><button class=${pay==='cash'?'on':''} onClick=${()=>setP('cash')}>💵 Dinheiro / Cash</button><button class=${pay==='mcx'?'on':''} onClick=${()=>setP('mcx')}>📲 Transferência / MCX</button></div>
+    <div class="row pay"><button class=${pay==='cash'?'on':''} onClick=${()=>setP('cash')}>${Ic('cash',18)} Dinheiro / Cash</button><button class=${pay==='mcx'?'on':''} onClick=${()=>setP('mcx')}>${Ic('phone',18)} Transferência / MCX</button></div>
     <div class="row"><div><label>Data / hora</label><input type="datetime-local" value=${at} onChange=${e=>setAt(e.target.value)}/></div><div><label>${isIn?'Registado por':'Responsável'}</label><input value=${by} onChange=${e=>setBy(e.target.value)}/></div></div>
     <label>${isIn?'Observação (opcional)':'Motivo / explicação (obrigatório)'}</label>
     <textarea rows="2" value=${note} onChange=${e=>setN(e.target.value)} placeholder=${isIn?'':'Explique para que foi o dinheiro'}></textarea>
@@ -100,16 +122,18 @@ function Form({type,op,onSave,edit,onCancel}){
 
 function Item({x,onEdit,onDel}){
   const isIn=x.type==='in';
-  return html`<div class="it"><div><b>${x.cat}</b> <span class="tag">${x.pay==='cash'?'Cash':'MCX'}</span>${!x.synced&&html`<span class="pend"> ⏳ pendente</span>`}
-    <small>${fdt(x.at)} · ${x.by||'—'}</small>${x.note&&html`<small>${isIn?'Obs':'Motivo'}: ${x.note}</small>`}
-    <div class="row" style=${{marginTop:6}}><button class="sm" onClick=${()=>onEdit(x)}>Editar</button><button class="sm" onClick=${()=>onDel(x)}>Excluir</button></div></div>
-    <b class=${isIn?'pos':'neg'} style=${{whiteSpace:'nowrap'}}>${isIn?'+':'−'}${kz(x.amount)}</b></div>`;
+  return html`<div class="it"><div class=${'ico '+(isIn?'pos':'neg')}><span class=${isIn?'pos':'neg'}>${Ic(isIn?'in':'out',18)}</span></div>
+    <div class="mid"><b>${x.cat}</b><small>${fdt(x.at)} · ${x.by||'—'} · ${x.pay==='cash'?'Cash':'MCX'}${!x.synced?' · a enviar':''}</small>${x.note&&html`<small class="nt">${x.note}</small>`}</div>
+    <div class="rt"><b class=${isIn?'pos':'neg'}>${isIn?'+':'−'}${kz(x.amount)}</b><div class="act"><button class="ib" aria-label="Editar" onClick=${()=>onEdit(x)}>${Ic('edit',15)}</button><button class="ib" aria-label="Excluir" onClick=${()=>onDel(x)}>${Ic('trash',15)}</button></div></div></div>`;
 }
 
 function Chart({items}){
   const days=[...Array(7)].map((_,i)=>{const t=sod(Date.now())-(6-i)*864e5;const d=items.filter(x=>sod(x.at)===t);return{t,i:sum(d,x=>x.type==='in'),o:sum(d,x=>x.type==='out')}});
   const mx=Math.max(1,...days.flatMap(d=>[d.i,d.o]));
-  return html`<div class="card"><h3>Últimos 7 dias</h3><svg viewBox="0 0 350 150">${days.map((d,k)=>{const x=k*50+8,hi=d.i/mx*100,ho=d.o/mx*100;return html`<g key=${k}><rect x=${x} y=${110-hi} width="16" height=${hi} rx="3" fill="#22c55e"><title>Entradas ${kz(d.i)}</title></rect><rect x=${x+18} y=${110-ho} width="16" height=${ho} rx="3" fill="#ef4444"><title>Retiradas ${kz(d.o)}</title></rect><text x=${x+17} y="128" text-anchor="middle" fill="#8b96b8" font-size="10">${new Date(d.t).toLocaleDateString('pt-PT',{weekday:'short'})}</text></g>`})}</svg><div class="row" style=${{fontSize:12,color:'var(--mu)'}}><span>🟩 Entradas</span><span>🟥 Retiradas</span></div></div>`;
+  return html`<div class="card"><h3>Últimos 7 dias</h3><svg viewBox="0 0 350 150"><defs><linearGradient id="gi" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#34d399"/><stop offset="1" stop-color="#059669"/></linearGradient><linearGradient id="go" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fb7185"/><stop offset="1" stop-color="#be123c"/></linearGradient></defs>
+    ${[0,1,2,3].map(i=>html`<line key=${i} x1="0" x2="350" y1=${12+i*32} y2=${12+i*32} stroke="rgba(255,255,255,.07)"/>`)}
+    ${days.map((d,k)=>{const x=k*50+9,hi=d.i/mx*96,ho=d.o/mx*96;return html`<g key=${k}><rect x=${x} y=${108-hi} width="14" height=${Math.max(hi,2)} rx="5" fill="url(#gi)"><title>Entradas ${kz(d.i)}</title></rect><rect x=${x+17} y=${108-ho} width="14" height=${Math.max(ho,2)} rx="5" fill="url(#go)"><title>Retiradas ${kz(d.o)}</title></rect><text x=${x+15.5} y="130" text-anchor="middle" fill="#8793a6" font-size="10" font-weight="600">${new Date(d.t).toLocaleDateString('pt-PT',{weekday:'short'}).replace('.','')}</text></g>`})}</svg>
+    <div class="row" style=${{fontSize:12,color:'var(--mu)',marginTop:6}}><span><b class="pos">●</b> Entradas</span><span><b class="neg">●</b> Retiradas</span></div></div>`;
 }
 
 function App(){
@@ -173,11 +197,12 @@ function App(){
   const rs=e=>{const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=()=>{try{const j=JSON.parse(r.result);if(!Array.isArray(j.items))throw 0;setItems(p=>{const m=new Map(p.map(x=>[x.id,x]));j.items.forEach(x=>m.set(x.id,{...x,deleted:false,updated:Date.now(),synced:false}));return[...m.values()]});setMsg(j.items.length+' lançamentos restaurados ✔')}catch(_){setMsg('Ficheiro inválido')}};r.readAsText(f);e.target.value=''};
   const copy=async()=>{try{await navigator.clipboard.writeText(code);setMsg('Código copiado ✔')}catch(e){setMsg('Copie manualmente: '+code)}};
 
-  const Sum=()=>html`<div class="card"><div class="row chips" style=${{marginBottom:10}}>${[['hoje','Hoje'],['semana','Esta Semana'],['mes','Este Mês'],['dia','📅 Escolher data'],['total','Total Geral']].map(([k,l])=>html`<button key=${k} class=${per===k?'on':''} onClick=${()=>setPer(k)}>${l}</button>`)}</div>
-    ${per==='dia'&&html`<div style=${{marginBottom:10}}><label style=${{marginTop:0}}>Data a consultar</label><input type="date" value=${day} onChange=${e=>e.target.value&&setDay(e.target.value)}/></div>`}<div class="grid"><div class="stat"><span>Entradas</span><b class="pos">${kz(tin)}</b></div><div class="stat"><span>Retiradas</span><b class="neg">${kz(tout)}</b></div><div class="stat"><span>Saldo líquido em caixa</span><b class=${bal>=0?'pos':'neg'}>${kz(bal)}</b></div>
-    <div class="stat"><span>💵 Saldo Cash</span><b class=${bc>=0?'pos':'neg'}>${kz(bc)}</b></div><div class="stat"><span>📲 Saldo MCX Express</span><b class=${bm>=0?'pos':'neg'}>${kz(bm)}</b></div></div></div>`;
-
-  if(sb&&!user)return html`<div id="app"><header><h1>🎮 AC Midia Pro<small>Controle Diário</small></h1></header>
+  const Sum=()=>html`<div class="card hero"><div class="seg">${[['hoje','Hoje'],['semana','Semana'],['mes','Mês'],['dia','Data'],['total','Total']].map(([k,l])=>html`<button key=${k} class=${per===k?'on':''} onClick=${()=>setPer(k)}>${k==='dia'?Ic('cal',14):''}${l}</button>`)}</div>
+    ${per==='dia'&&html`<input class="dt" type="date" value=${day} onChange=${e=>e.target.value&&setDay(e.target.value)}/>`}
+    <div class="lbl">Saldo líquido em caixa</div><div class=${'bal '+(tin-tout>=0?'pos':'neg')}>${kz(tin-tout)}</div>
+    <div class="two"><div class="mini"><span class="pos">${Ic('in',15)} Entradas</span><b>${kz(tin)}</b></div><div class="mini"><span class="neg">${Ic('out',15)} Retiradas</span><b>${kz(tout)}</b></div></div>
+    <div class="two"><div class="mini"><span>${Ic('cash',15)} Cash</span><b class=${bc>=0?'pos':'neg'}>${kz(bc)}</b></div><div class="mini"><span>${Ic('phone',15)} MCX Express</span><b class=${bm>=0?'pos':'neg'}>${kz(bm)}</b></div></div></div>`;
+  if(sb&&!user)return html`<div id="app"><header><div class="brand"><div class="logo">AC</div><h1>AC Midia Pro<small>Controle Diário</small></h1></div></header>
     <div class="card"><h3>${authReady?'Entrar na conta':'A carregar...'}</h3>${authReady&&html`<div>
       <label>Email</label><input type="email" autocomplete="email" value=${email} onChange=${e=>setEmail(e.target.value)}/>
       <label>Palavra-passe (mín. 6)</label><input type="password" autocomplete="current-password" value=${pw} onChange=${e=>setPw(e.target.value)}/>
@@ -185,22 +210,22 @@ function App(){
       <div class="row" style=${{marginTop:12}}><button class="p" disabled=${aBusy} onClick=${()=>doAuth('in')}>Entrar</button><button disabled=${aBusy} onClick=${()=>doAuth('up')}>Criar conta</button></div>
       <small style=${{color:'var(--mu)',display:'block',marginTop:10}}>Use a mesma conta em todos os telemóveis para partilhar os dados em tempo real.</small></div>`}</div></div>`;
   return html`<div id="app">
-    <header><h1>🎮 AC Midia Pro<small>Controle Diário · ${op?'Operador: '+op:'Sem operador'}</small></h1><span class=${'badge '+status.c}>${status.t}</span></header>
-    ${msg&&html`<div class="card" style=${{padding:10,textAlign:'center'}}>${msg}</div>`}
-    ${(tab==='in'||tab==='out')&&html`<${Form} key=${type+(edit?edit.id:'')} type=${type} op=${op} edit=${edit&&edit.type===type?edit:null} onSave=${save} onCancel=${()=>setEdit(null)}/>${html`<${Sum}/>`}
+    <header><div class="brand"><div class="logo">AC</div><h1>AC Midia Pro<small>Controle Diário · ${op?op:'Sem operador'}</small></h1></div><span class=${'badge '+status.c}><i class="dot"></i>${status.t}</span></header>
+    ${msg&&html`<div class="toast">${msg}</div>`}
+    ${(tab==='in'||tab==='out')&&html`<${Sum}/><${Form} key=${type+(edit?edit.id:'')} type=${type} op=${op} edit=${edit&&edit.type===type?edit:null} onSave=${save} onCancel=${()=>setEdit(null)}/>
       <div class="card"><h3>Hoje — ${type==='in'?'entradas':'retiradas'}</h3>${items.filter(x=>x.type===type&&sod(x.at)===sod(Date.now())).sort((a,b)=>b.at-a.at).map(x=>html`<${Item} key=${x.id} x=${x} onEdit=${setEdit} onDel=${del}/>`)}${!items.some(x=>x.type===type&&sod(x.at)===sod(Date.now()))&&html`<small style=${{color:'var(--mu)'}}>Sem lançamentos hoje.</small>`}</div>`}
     ${tab==='res'&&html`<${Sum}/><${Chart} items=${items}/>${per!=='total'&&html`<div class="card"><h3>Movimentos — ${per==='dia'?day.split('-').reverse().join('/'):per==='hoje'?'hoje':per==='semana'?'esta semana':'este mês'}</h3>${[...pi].sort((a,b)=>b.at-a.at).map(x=>html`<${Item} key=${x.id} x=${x} onEdit=${y=>{setEdit(y);setTab(y.type)}} onDel=${del}/>`)}${!pi.length&&html`<small style=${{color:'var(--mu)'}}>Sem movimentos neste período.</small>`}</div>`}
       <div class="card"><h3>Histórico</h3><div class="row chips" style=${{marginBottom:8}}>${[['all','Tudo'],['in','Só Entradas'],['out','Só Retiradas']].map(([k,l])=>html`<button key=${k} class=${flt===k?'on':''} onClick=${()=>setFlt(k)}>${l}</button>`)}</div>
-      <input placeholder="🔍 Pesquisar categoria, motivo, responsável…" value=${q} onChange=${e=>setQ(e.target.value)}/>
+      <input placeholder="Pesquisar categoria, motivo, responsável…" value=${q} onChange=${e=>setQ(e.target.value)}/>
       ${hist.map(x=>html`<${Item} key=${x.id} x=${x} onEdit=${y=>{setEdit(y);setTab(y.type)}} onDel=${del}/>`)}${!hist.length&&html`<small style=${{color:'var(--mu)'}}>Nada encontrado.</small>`}</div>`}
     ${tab==='cfg'&&html`<div class="card"><h3>Sala partilhada / Sócio</h3>
       <label>Nome do operador / sócio</label><input value=${op} onChange=${e=>setOp(e.target.value)} placeholder="Ex.: Glenio"/>
       <label>Código da casa</label><div class="row"><input value=${code} onChange=${e=>setCode(e.target.value.trim().toUpperCase())}/><button class="p sm" style=${{flex:'none'}} onClick=${copy}>Copiar código</button></div>
-      <small style=${{color:'var(--mu)',display:'block',marginTop:8}}>${sb?'Conta: '+(user?user.email:'sem sessão')+'. Entre com a mesma conta e o mesmo código nos outros telemóveis para ver os mesmos dados em tempo real.':'Supabase não configurado: edite o config.js. A app funciona só neste aparelho.'}</small>${syncErr&&html`<div class="err">Erro de sincronização: ${syncErr}</div>`}${sb&&html`<div class="row" style=${{marginTop:10}}><button class="p" onClick=${()=>{flush();pull()}}>🔄 Sincronizar agora</button><button onClick=${logout}>Terminar sessão</button></div>`}
+      <small style=${{color:'var(--mu)',display:'block',marginTop:8}}>${sb?'Conta: '+(user?user.email:'sem sessão')+'. Entre com a mesma conta e o mesmo código nos outros telemóveis para ver os mesmos dados em tempo real.':'Supabase não configurado: edite o config.js. A app funciona só neste aparelho.'}</small>${syncErr&&html`<div class="err">Erro de sincronização: ${syncErr}</div>`}${sb&&html`<div class="row" style=${{marginTop:10}}><button class="p" onClick=${()=>{flush();pull()}}>${Ic('sync',16)} Sincronizar agora</button><button onClick=${logout}>Terminar sessão</button></div>`}
       <div class="grid" style=${{marginTop:12}}><div class="stat"><span>Ligação</span><b>${net?'Online':'Offline'}</b></div><div class="stat"><span>Sincronização</span><b>${dbOk?'Disponível':'Só local'}</b></div><div class="stat"><span>Pendentes</span><b class=${pending?'pend':''}>${pending}</b></div></div></div>
-      <div class="card"><h3>Exportação e backup</h3><div class="row"><button class="p" onClick=${csv}>📄 Exportar CSV (Excel)</button><button onClick=${bk}>💾 Backup JSON</button></div>
+      <div class="card"><h3>Exportação e backup</h3><div class="row"><button class="p" onClick=${csv}>${Ic('dl',16)} Exportar CSV (Excel)</button><button onClick=${bk}>${Ic('dl',16)} Backup JSON</button></div>
       <label>Restaurar backup JSON</label><input type="file" accept="application/json,.json" onChange=${rs}/></div>`}
-    <nav>${[['in','💰','Entradas'],['out','📤','Retiradas'],['res','📊','Resumo'],['cfg','⚙️','Sócio']].map(([k,i,l])=>html`<button key=${k} class=${tab===k?'on':''} onClick=${()=>{setTab(k);setEdit(null)}}>${i}<br/>${l}</button>`)}</nav>
+    <nav>${[['in','in','Entradas'],['out','out','Retiradas'],['res','chart','Resumo'],['cfg','user','Sócio']].map(([k,i,l])=>html`<button key=${k} class=${tab===k?'on':''} onClick=${()=>{setTab(k);setEdit(null)}}>${Ic(i,22)}<span>${l}</span></button>`)}</nav>
   </div>`;
 }
 ReactDOM.createRoot(document.getElementById("root")).render(html`<${App}/>`);
