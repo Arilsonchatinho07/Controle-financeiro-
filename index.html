@@ -143,7 +143,7 @@ function App(){
   const [op,setOp]=useState(()=>ld('acm_op',''));
   const [code,setCode]=useState(()=>ld('acm_code','AC-MIDIAPRO-2026'));
   const [net,setNet]=useState(navigator.onLine);
-  const dbOk=!!sb;const [user,setUser]=useState(null),[authReady,setAuthReady]=useState(!sb),[syncErr,setSyncErr]=useState(''),[email,setEmail]=useState(''),[pw,setPw]=useState(''),[aErr,setAErr]=useState(''),[aBusy,setABusy]=useState(false);const [busy,setBusy]=useState(false);
+  const dbOk=!!sb;const [user,setUser]=useState(()=>ld('acm_user',null)),[authReady,setAuthReady]=useState(()=>!sb||!!ld('acm_user',null)),[syncErr,setSyncErr]=useState(''),[email,setEmail]=useState(''),[pw,setPw]=useState(''),[aErr,setAErr]=useState(''),[aBusy,setABusy]=useState(false);const [busy,setBusy]=useState(false);
   const [edit,setEdit]=useState(null);const [per,setPer]=useState('hoje');const [day,setDay]=useState(()=>{const d=new Date();d.setMinutes(d.getMinutes()-d.getTimezoneOffset());return d.toISOString().slice(0,10)});
   const [flt,setFlt]=useState('all');const [q,setQ]=useState('');const [msg,setMsg]=useState('');
   const itR=useRef(raw);
@@ -151,8 +151,12 @@ function App(){
   useEffect(()=>sv('acm_items',raw),[raw]);
   useEffect(()=>sv('acm_op',op),[op]);useEffect(()=>sv('acm_code',code),[code]);
   useEffect(()=>{const a=()=>setNet(true),b=()=>setNet(false);addEventListener('online',a);addEventListener('offline',b);return()=>{removeEventListener('online',a);removeEventListener('offline',b)}},[]);
-  useEffect(()=>{if(!sb)return;sb.auth.getSession().then(({data})=>{setUser(data.session?data.session.user:null);setAuthReady(true)}).catch(()=>setAuthReady(true));
-    const {data:l}=sb.auth.onAuthStateChange((_e,sess)=>setUser(sess?sess.user:null));return()=>l.subscription.unsubscribe()},[]);
+  useEffect(()=>{if(user)sv('acm_user',{id:user.id,email:user.email});else sv('acm_user',null)},[user]);
+  useEffect(()=>{if(!sb)return;let dead=false;
+    const tm=setTimeout(()=>{if(!dead)setAuthReady(true)},2500);
+    sb.auth.getSession().then(({data})=>{if(dead)return;if(data.session)setUser(data.session.user);else if(navigator.onLine)setUser(null);setAuthReady(true)}).catch(()=>setAuthReady(true));
+    const {data:l}=sb.auth.onAuthStateChange((ev,sess)=>{if(sess)setUser(sess.user);else if(ev==='SIGNED_OUT')setUser(null)});
+    return()=>{dead=true;clearTimeout(tm);l.subscription.unsubscribe()}},[]);
   const merge=useCallback(rows=>setItems(p=>{const m=new Map(p.map(x=>[x.id,x]));rows.forEach(r=>{const l=m.get(r.id);if(!l||l.synced||r.updated>=l.updated)m.set(r.id,r)});return[...m.values()]}),[]);
   const pull=useCallback(async()=>{if(!sb||!user||!navigator.onLine)return;
     try{const {data,error}=await sb.from('transacoes').select('*').eq('house',code);if(error)setSyncErr(error.message);else{setSyncErr('');merge(data.map(fromRow))}}catch(e){setSyncErr('Falha de rede')}},[code,user]);
@@ -206,7 +210,7 @@ function App(){
     <div class="card"><h3>${authReady?'Entrar na conta':'A carregar...'}</h3>${authReady&&html`<div>
       <label>Email</label><input type="email" autocomplete="email" value=${email} onChange=${e=>setEmail(e.target.value)}/>
       <label>Palavra-passe (mín. 6)</label><input type="password" autocomplete="current-password" value=${pw} onChange=${e=>setPw(e.target.value)}/>
-      ${aErr&&html`<div class="err">${aErr}</div>`}
+      ${aErr&&html`<div class="err">${aErr}</div>`}${!net&&html`<div class="err">Sem internet: ligue-se à internet para entrar pela primeira vez neste aparelho.</div>`}
       <div class="row" style=${{marginTop:12}}><button class="p" disabled=${aBusy} onClick=${()=>doAuth('in')}>Entrar</button><button disabled=${aBusy} onClick=${()=>doAuth('up')}>Criar conta</button></div>
       <small style=${{color:'var(--mu)',display:'block',marginTop:10}}>Use a mesma conta em todos os telemóveis para partilhar os dados em tempo real.</small></div>`}</div></div>`;
   return html`<div id="app">
