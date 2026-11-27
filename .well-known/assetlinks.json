@@ -1,1 +1,9 @@
+[{
+      "relation": ["delegate_permission/common.handle_all_urls"],
+      "target": {
+        "namespace": "android_app",
+        "package_name": "app.vercel.controle_financeiro_flame_phi.twa",
+        "sha256_cert_fingerprints": ["1C:EA:3C:8E:F7:6A:42:4D:F4:34:EE:75:B1:24:AA:79:7C:0E:9A:8C:2D:23:68:51:AF:7A:CB:A0:3A:91:73:5E"]
+      }
+    }]
 
